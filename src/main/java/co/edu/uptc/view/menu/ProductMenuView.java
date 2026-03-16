@@ -5,28 +5,17 @@ import co.edu.uptc.i18n.I18n;
 import co.edu.uptc.interfaces.PresenterInterface;
 import co.edu.uptc.view.ConsoleHelper;
 
-/**
- * ProductMenuView — Submenú de Productos.
- *
- * Misma filosofía que PersonMenuView:
- *   - Captura input → pasa datos crudos al Presenter → no valida.
- *   - El Presenter responde con showMessage() o showError() a través de la View principal.
- */
 public class ProductMenuView {
 
     private final PresenterInterface presenter;
-    private final ConsoleHelper      console;
-    private final ConfigManager      config;
+    private final ConsoleHelper console;
+    private final ConfigManager config;
 
     public ProductMenuView(PresenterInterface presenter, ConsoleHelper console) {
         this.presenter = presenter;
-        this.console   = console;
-        this.config    = ConfigManager.getInstance();
+        this.console = console;
+        this.config = ConfigManager.getInstance();
     }
-
-    // -------------------------------------------------------
-    // Ciclo del submenú
-    // -------------------------------------------------------
 
     public void show() {
         boolean running = true;
@@ -38,14 +27,10 @@ public class ProductMenuView {
                 case "2" -> presenter.requestListProducts();
                 case "3" -> presenter.requestExportProducts();
                 case "4" -> running = false;
-                default  -> console.printError(I18n.msg("msg.error.invalid_option"));
+                default -> console.printError(I18n.msg("msg.error.invalid_option"));
             }
         }
     }
-
-    // -------------------------------------------------------
-    // Presentación del menú
-    // -------------------------------------------------------
 
     private void printMenu() {
         console.printBlankLine();
@@ -56,10 +41,6 @@ public class ProductMenuView {
         console.print("  4. " + I18n.msg("menu.sub.back"));
     }
 
-    // -------------------------------------------------------
-    // Captura de datos
-    // -------------------------------------------------------
-
     private void captureNewProduct() {
         console.printBlankLine();
         console.print(I18n.msg("menu.product.add_title"));
@@ -68,8 +49,8 @@ public class ProductMenuView {
         double priceMax = config.getDouble("product.price.max", 9_999_999.99);
 
         String description = console.readLine(I18n.msg("product.input.description"));
-        String unit        = console.readLine(I18n.msg("product.input.unit"));
-        String price       = console.readLine(I18n.msg("product.input.price", priceMax));
+        String unit = console.readLine(I18n.msg("product.input.unit"));
+        String price = console.readLine(I18n.msg("product.input.price", priceMax));
 
         presenter.requestAddProduct(description, unit, price);
     }

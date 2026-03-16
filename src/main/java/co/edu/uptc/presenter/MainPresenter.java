@@ -18,34 +18,15 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.logging.Logger;
 
-/**
- * MainPresenter — El cerebro del patrón MVP.
- *
- * Responsabilidades:
- *   1. Recibir datos crudos (Strings) desde la View.
- *   2. Validarlos con las reglas de negocio.
- *   3. Transformarlos en objetos del modelo.
- *   4. Llamar al Model para persistir o consultar.
- *   5. Decirle a la View qué mostrar (éxito, error o datos).
- *
- * LO QUE NUNCA HACE:
- *   - Imprimir directamente a consola (eso es la View).
- *   - Conocer las estructuras internas del Model (Cola, Pila, Lista).
- *   - Tomar decisiones de presentación (formato de tabla, colores, etc.).
- */
 public class MainPresenter implements PresenterInterface {
 
-    private static final Logger         LOGGER        = Logger.getLogger(MainPresenter.class.getName());
-    private final        ConfigManager  config        = ConfigManager.getInstance();
-    private final        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    private final        DateTimeFormatter fileTimestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+    private static final Logger LOGGER = Logger.getLogger(MainPresenter.class.getName());
+    private final ConfigManager config = ConfigManager.getInstance();
+    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private final DateTimeFormatter fileTimestamp = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
 
-    private ViewInterface  view;
+    private ViewInterface view;
     private ModelInterface model;
-
-    // -------------------------------------------------------
-    // Wiring MVP
-    // -------------------------------------------------------
 
     @Override
     public void setView(ViewInterface view) {
@@ -57,14 +38,10 @@ public class MainPresenter implements PresenterInterface {
         this.model = model;
     }
 
-    // -------------------------------------------------------
-    // Personas
-    // -------------------------------------------------------
-
     @Override
     public void requestAddPerson(String name, String lastName, String gender, String birthDate) {
-        int nameMin     = config.getInt("person.name.min", 2);
-        int nameMax     = config.getInt("person.name.max", 50);
+        int nameMin = config.getInt("person.name.min", 2);
+        int nameMax = config.getInt("person.name.max", 50);
         int lastNameMin = config.getInt("person.lastname.min", 2);
         int lastNameMax = config.getInt("person.lastname.max", 50);
 
@@ -90,12 +67,11 @@ public class MainPresenter implements PresenterInterface {
         }
 
         Person person = new Person(
-            model.getNextPersonId(),
-            capitalize(name),
-            capitalize(lastName),
-            g.charAt(0),
-            date
-        );
+                model.getNextPersonId(),
+                capitalize(name),
+                capitalize(lastName),
+                g.charAt(0),
+                date);
         model.addPerson(person);
         view.showMessage(I18n.msg("msg.success.add"));
         LOGGER.info("Persona agregada id=" + person.getId());
@@ -108,16 +84,16 @@ public class MainPresenter implements PresenterInterface {
 
     @Override
     public void requestExportPersons() {
-        String fileName  = "personas_" + LocalDateTime.now().format(fileTimestamp) + ".csv";
+        String fileName = "personas_" + LocalDateTime.now().format(fileTimestamp) + ".csv";
         String delimiter = config.get("app.export.delimiter", ",");
 
         try (PrintWriter pw = new PrintWriter(new FileWriter(fileName))) {
             pw.println("ID" + delimiter + "Nombre" + delimiter + "Apellido"
-                       + delimiter + "Genero" + delimiter + "FechaNac");
+                    + delimiter + "Genero" + delimiter + "FechaNac");
             for (Person p : model.getPersons()) {
                 pw.printf("%d%s%s%s%s%s%c%s%s%n",
-                    p.getId(), delimiter, p.getName(), delimiter, p.getLastName(),
-                    delimiter, p.getGender(), delimiter, p.getBirthDate());
+                        p.getId(), delimiter, p.getName(), delimiter, p.getLastName(),
+                        delimiter, p.getGender(), delimiter, p.getBirthDate());
             }
             view.showMessage(I18n.msg("msg.success.export", fileName));
         } catch (IOException e) {
@@ -126,13 +102,9 @@ public class MainPresenter implements PresenterInterface {
         }
     }
 
-    // -------------------------------------------------------
-    // Productos
-    // -------------------------------------------------------
-
     @Override
     public void requestAddProduct(String description, String unit, String price) {
-        int    descMax  = config.getInt("product.description.max", 200);
+        int descMax = config.getInt("product.description.max", 200);
         double priceMax = config.getDouble("product.price.max", 9_999_999.99);
 
         if (!isLengthValid(description, 1, descMax)) {
@@ -155,11 +127,10 @@ public class MainPresenter implements PresenterInterface {
         }
 
         Product product = new Product(
-            model.getNextProductId(),
-            description.trim(),
-            unit.trim(),
-            parsedPrice
-        );
+                model.getNextProductId(),
+                description.trim(),
+                unit.trim(),
+                parsedPrice);
         model.addProduct(product);
         view.showMessage(I18n.msg("msg.success.add"));
     }
@@ -171,24 +142,20 @@ public class MainPresenter implements PresenterInterface {
 
     @Override
     public void requestExportProducts() {
-        String fileName  = "productos_" + LocalDateTime.now().format(fileTimestamp) + ".csv";
+        String fileName = "productos_" + LocalDateTime.now().format(fileTimestamp) + ".csv";
         String delimiter = config.get("app.export.delimiter", ",");
 
         try (PrintWriter pw = new PrintWriter(new FileWriter(fileName))) {
             pw.println("ID" + delimiter + "Descripcion" + delimiter + "Unidad" + delimiter + "Precio");
             for (Product p : model.getProducts()) {
                 pw.printf("%d%s%s%s%s%s%.2f%n",
-                    p.getId(), delimiter, p.getDescription(), delimiter, p.getUnit(), delimiter, p.getPrice());
+                        p.getId(), delimiter, p.getDescription(), delimiter, p.getUnit(), delimiter, p.getPrice());
             }
             view.showMessage(I18n.msg("msg.success.export", fileName));
         } catch (IOException e) {
             view.showError(I18n.msg("msg.error.export_failed"));
         }
     }
-
-    // -------------------------------------------------------
-    // Contabilidad
-    // -------------------------------------------------------
 
     @Override
     public void requestAddAccounting(String description, String movementType, String amount) {
@@ -210,12 +177,11 @@ public class MainPresenter implements PresenterInterface {
         }
 
         Accounting accounting = new Accounting(
-            model.getNextAccountingId(),
-            description.trim(),
-            type,
-            parsedAmount,
-            LocalDateTime.now()
-        );
+                model.getNextAccountingId(),
+                description.trim(),
+                type,
+                parsedAmount,
+                LocalDateTime.now());
         model.addAccounting(accounting);
         view.showMessage(I18n.msg("msg.success.add"));
     }
@@ -227,16 +193,16 @@ public class MainPresenter implements PresenterInterface {
 
     @Override
     public void requestExportAccounting() {
-        String fileName  = "contabilidad_" + LocalDateTime.now().format(fileTimestamp) + ".csv";
+        String fileName = "contabilidad_" + LocalDateTime.now().format(fileTimestamp) + ".csv";
         String delimiter = config.get("app.export.delimiter", ",");
 
         try (PrintWriter pw = new PrintWriter(new FileWriter(fileName))) {
             pw.println("ID" + delimiter + "Descripcion" + delimiter + "Tipo"
-                       + delimiter + "Valor" + delimiter + "FechaHora");
+                    + delimiter + "Valor" + delimiter + "FechaHora");
             for (Accounting a : model.getAccountingMovements()) {
                 pw.printf("%d%s%s%s%s%s%.2f%s%s%n",
-                    a.getId(), delimiter, a.getDescription(), delimiter,
-                    a.getType(), delimiter, a.getAmount(), delimiter, a.getDateTime());
+                        a.getId(), delimiter, a.getDescription(), delimiter,
+                        a.getType(), delimiter, a.getAmount(), delimiter, a.getDateTime());
             }
             view.showMessage(I18n.msg("msg.success.export", fileName));
         } catch (IOException e) {
@@ -244,28 +210,27 @@ public class MainPresenter implements PresenterInterface {
         }
     }
 
-    // -------------------------------------------------------
-    // Helpers privados de validación / parseo
-    // -------------------------------------------------------
-
     private boolean isLengthValid(String value, int min, int max) {
-        if (value == null) return false;
+        if (value == null)
+            return false;
         int len = value.trim().length();
         return len >= min && len <= max;
     }
 
     private boolean isUpperCase(String value) {
-        if (value == null || value.isBlank()) return false;
+        if (value == null || value.isBlank())
+            return false;
         String t = value.trim();
         return t.equals(t.toUpperCase());
     }
 
-    /** Retorna -1.0 como señal de error (precio siempre > 0). */
     private double parsePositiveDouble(String value, double max) {
-        if (value == null || value.isBlank()) return -1.0;
+        if (value == null || value.isBlank())
+            return -1.0;
         try {
             double parsed = Double.parseDouble(value.trim().replace(",", "."));
-            if (parsed <= 0 || parsed > max) return -1.0;
+            if (parsed <= 0 || parsed > max)
+                return -1.0;
             return parsed;
         } catch (NumberFormatException e) {
             return -1.0;
@@ -273,7 +238,8 @@ public class MainPresenter implements PresenterInterface {
     }
 
     private LocalDate parseDate(String raw) {
-        if (raw == null) return null;
+        if (raw == null)
+            return null;
         try {
             return LocalDate.parse(raw.trim(), dateFormatter);
         } catch (DateTimeParseException e) {
@@ -282,17 +248,18 @@ public class MainPresenter implements PresenterInterface {
     }
 
     private Accounting.MovementType parseMovementType(String raw) {
-        if (raw == null) return null;
+        if (raw == null)
+            return null;
         return switch (raw.trim().toUpperCase()) {
             case "I" -> Accounting.MovementType.INCOME;
             case "E" -> Accounting.MovementType.EXPENSE;
-            default  -> null;
+            default -> null;
         };
     }
 
-    /** Primera letra en mayúscula, resto en minúscula. */
     private String capitalize(String value) {
-        if (value == null || value.isBlank()) return value;
+        if (value == null || value.isBlank())
+            return value;
         String t = value.trim().toLowerCase();
         return Character.toUpperCase(t.charAt(0)) + t.substring(1);
     }

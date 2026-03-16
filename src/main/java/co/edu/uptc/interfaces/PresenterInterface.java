@@ -1,14 +1,5 @@
 package co.edu.uptc.interfaces;
 
-/**
- * PresenterInterface — Contrato del Presenter.
- *
- * La View SOLO llama métodos de esta interfaz.
- * Nunca instancia ni conoce MainPresenter directamente.
- *
- * Cada método recibe datos crudos (Strings) desde la View.
- * El Presenter valida, transforma y decide qué responder.
- */
 public interface PresenterInterface {
 
     // --- Wiring MVP ---
