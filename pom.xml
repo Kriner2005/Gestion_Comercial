@@ -2,24 +2,168 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- ============================================================
+         Identificación del proyecto
+         groupId  → dominio invertido de la organización
+         artifactId → nombre del JAR que se genera
+         version    → semántico: MAJOR.MINOR.PATCH
+    ============================================================ -->
     <groupId>co.edu.uptc</groupId>
-    <artifactId>Gestion_Comercial</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>gestion-listas-pilas-colas</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>Sistema de Gestión - Listas, Pilas y Colas</name>
+    <description>Proyecto académico UPTC - Programación 3</description>
 
     <properties>
+        <!-- Versión de Java -->
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+
+        <!-- Encoding: crítico para i18n con caracteres especiales -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!-- Clase principal para el JAR ejecutable -->
+        <main.class>co.edu.uptc.Main</main.class>
+
+        <!-- Versiones de dependencias centralizadas aquí, no hardcodeadas abajo -->
+        <lombok.version>1.18.30</lombok.version>
+        <junit.version>5.10.1</junit.version>
     </properties>
 
     <dependencies>
+
+        <!-- ============================================================
+             Lombok: genera getters, setters, constructores en tiempo
+             de compilación. "provided" = solo compila, no va al JAR final.
+             Es una herramienta de desarrollo, no una dependencia de runtime.
+        ============================================================ -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.40</version>
-            <scope>compile</scope>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
         </dependency>
+
+        <!-- ============================================================
+             JUnit 5: framework de pruebas unitarias
+             "test" = solo para tests, no va al JAR de producción
+        ============================================================ -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
+
+    <build>
+        <plugins>
+
+            <!-- ============================================================
+                 Plugin compilador: asegura que Maven use Java 17
+                 y que Lombok se procese como annotation processor
+            ============================================================ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.12.1</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+
+            <!-- ============================================================
+                 maven-resources-plugin: copia los .properties al JAR
+                 con el encoding correcto (UTF-8) para que los acentos
+                 no se corrompan en los archivos de i18n
+            ============================================================ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+
+            <!-- ============================================================
+                 maven-shade-plugin: genera el "fat JAR" (uber-JAR)
+                 que incluye todas las dependencias adentro.
+                 Así el cliente solo necesita el .jar para ejecutar.
+
+                 SIN shade: java -cp app.jar:lib/*.jar co.edu.uptc.Main
+                 CON shade: java -jar app.jar   ← mucho más simple
+            ============================================================ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.1</version>
+                <executions>
+                    <execution>
+                        <!-- Se ejecuta en la fase "package" (mvn package) -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <!-- El JAR "shadeado" sobreescribe el JAR normal -->
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+
+                            <!-- Filtros: excluir archivos de firma de dependencias
+                                 que causarían errores de SecurityException al ejecutar -->
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+
+                            <!-- Manifest: define el Main-Class para java -jar -->
+                            <transformers>
+                                <transformer
+                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${main.class}</mainClass>
+                                </transformer>
+                                <!-- Combina los archivos META-INF/services (ServiceLoader) -->
+                                <transformer
+                                    implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- ============================================================
+                 maven-surefire-plugin: ejecuta tests con JUnit 5
+                 mvn test
+            ============================================================ -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.3</version>
+            </plugin>
+
+        </plugins>
+    </build>
 
 </project>

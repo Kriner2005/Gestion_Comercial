@@ -5,11 +5,13 @@ import java.util.List;
 /**
  * ProductList — Lista de productos con acceso libre.
  *
- * <p>A diferencia de la cola (personas) y la pila (contabilidad),
+ * <p>
+ * A diferencia de la cola (personas) y la pila (contabilidad),
  * los productos no tienen restricción de orden de acceso.
  * Se puede agregar al inicio, al final, o en cualquier posición.
  *
- * <p>Operaciones implementadas:
+ * <p>
+ * Operaciones implementadas:
  * - Agregar al final (más común)
  * - Listar todos
  * - Buscar por ID
@@ -39,9 +41,9 @@ public class ProductList {
      * Busca un producto por ID.
      * Recorre la lista completa: O(n). Aceptable para volúmenes académicos.
      */
-    public Product findById(String id) {
+    public Product findById(int id) {
         for (Product p : list.toList()) {
-            if (p.getId().equals(id)) {
+            if (p.getId() == id) {
                 return p;
             }
         }
