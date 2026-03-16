@@ -1,37 +1,66 @@
 package co.edu.uptc.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
 import java.time.LocalDate;
 
-/**
- * Person — Entidad de persona.
- *
- * <p>Notas de buenas prácticas:
- *
- * <p>1. {@code LocalDate} en vez de {@code java.util.Date}:
- *    La clase Date está deprecada en muchos aspectos.
- *    LocalDate (Java 8+) es inmutable, no tiene zona horaria implícita,
- *    y tiene una API mucho más limpia.
- *
- * <p>2. {@code char gender}: suficiente para M/F. Un enum sería más robusto
- *    si hubiera más opciones en el futuro.
- *
- * <p>3. Las anotaciones de Lombok (@Getter, @Setter, etc.) evitan
- *    código boilerplate. El compilador las procesa y genera los métodos.
- *    En producción real muchas empresas usan Records (Java 16+) para esto.
- */
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
 public class Person {
+
     private int id;
     private String name;
     private String lastName;
     private char gender;
-    private LocalDate birthDate;  // LocalDate es inmutable y más preciso que Date
+    private LocalDate birthDate;
+
+    public Person(int id, String name, String lastName, char gender, LocalDate birthDate) {
+        this.id = id;
+        this.name = name;
+        this.lastName = lastName;
+        this.gender = gender;
+        this.birthDate = birthDate;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public char getGender() {
+        return gender;
+    }
+
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setGender(char gender) {
+        this.gender = gender;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    @Override
+    public String toString() {
+        return "Person{id=" + id + ", name=" + name + ", lastName=" + lastName
+                + ", gender=" + gender + ", birthDate=" + birthDate + "}";
+    }
 }
