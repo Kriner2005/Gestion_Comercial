@@ -21,8 +21,8 @@
 
     <properties>
         <!-- Versión de Java -->
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
 
         <!-- Encoding: crítico para i18n con caracteres especiales -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -32,7 +32,7 @@
         <main.class>co.edu.uptc.Main</main.class>
 
         <!-- Versiones de dependencias centralizadas aquí, no hardcodeadas abajo -->
-        <lombok.version>1.18.30</lombok.version>
+        <lombok.version>1.18.36</lombok.version>
         <junit.version>5.10.1</junit.version>
     </properties>
 
